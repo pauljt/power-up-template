@@ -97,9 +97,9 @@ function getBugStatus(bugNumber) {
     });
 }
 
-var getBadges = async function(t) {
+var getBadges = function(t) {
   return t.get("card", "shared", "secbug")
-  .then(function(secbug) {
+  .then(async function(secbug) {
     console.log("secbug: " + secbug);
     var status = await getBugStatus(secbug);
     if (!secbug) {
