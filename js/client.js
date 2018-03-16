@@ -76,61 +76,61 @@ t.getAll();
 
 */
 
-var GLITCH_ICON = './images/glitch.svg';
-var WHITE_ICON = './images/icon-white.svg';
-var GRAY_ICON = './images/icon-gray.svg';
+var GLITCH_ICON = "./images/glitch.svg";
+var WHITE_ICON = "./images/icon-white.svg";
+var GRAY_ICON = "./images/icon-gray.svg";
 
+const BUGZILLA_API = "https://bugzilla.mozilla.org/rest/bug?";
 
-var getBadges = function(t){
-  return t.get('card','shared','secbug')
-  .then(function(secbug){
-    console.log('secbug: ' + secbug);
-    if(!secbug){
-      secbug = 'None'
-    }
-    return [{
-      title: 'Popup Detail Badge', // for detail badges only
-      text: `SecReview:${secbug}`,
-      icon: GRAY_ICON, // for card front badges only
-      callback: function(context) { // function to run on click
-        return context.popup({
-          title: 'Card Detail Badge Popup',
-          url: './settings.html',
-          height: 184 // we can always resize later, but if we know the size in advance, its good to tell Trello
-        });
+function getBugStatus(bugNumber) {
+  fetch(`${BUGZILLA_API}?id=${bugNumber}&include_fields=status,resolution'`)
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(data) {
+      if (data.bugs && data.bugs.length === 1) {
+        return data.bugs[0];
+      } else {
+        console.log(`No data when retrieving bug data for ${bugNumber}.`);
+        return { resolution: "", status: "" };
       }
-    }];
+    });
+}
+
+var getBadges = async function(t) {
+  return t.get("card", "shared", "secbug")
+  .then(function(secbug) {
+    console.log("secbug: " + secbug);
+    var status = await getBugStatus(secbug);
+    if (!secbug) {
+      secbug = "None";
+    }
+
+    return [
+      {
+        title: "Popup Detail Badge", // for detail badges only
+        text: `SecReview:${secbug}`,
+        icon: GRAY_ICON, // for card front badges only
+        callback: function(context) {
+          return context.popup({
+            title: "Card Detail Badge Popup",
+            url: "./settings.html",
+            height: 184
+          });
+        }
+      }
+    ];
   });
 };
 
-
-  // in the above case we let Trello do the searching client side
-  // but what if we don't have all the information up front?
-  // no worries, instead of giving Trello an array of `items` you can give it a function instead
-  /*
-  return t.popup({
-    title: 'Popup Async Search',
-    items: function(t, options) {
-      // use options.search which is the search text entered so far
-      // and return a Promise that resolves to an array of items
-      // similar to the items you provided in the client side version above
-    },
-    search: {
-      placeholder: 'Start typing your search',
-      empty: 'Huh, nothing there',
-      searching: 'Scouring the internet...'
-    }
-  });
-  */
-
 // We need to call initialize to get all of our capability handles set up and registered with Trello
 TrelloPowerUp.initialize({
-  'card-badges': function(t, options){
+  "card-badges": function(t, options) {
     return getBadges(t);
   },
-  'card-detail-badges': function(t, options) {
+  "card-detail-badges": function(t, options) {
     return getBadges(t);
   }
 });
 
-console.log('Loaded by: ' + document.referrer);
+console.log("Loaded by: " + document.referrer);
