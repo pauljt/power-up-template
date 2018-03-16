@@ -80,9 +80,6 @@ var GLITCH_ICON = './images/glitch.svg';
 var WHITE_ICON = './images/icon-white.svg';
 var GRAY_ICON = './images/icon-gray.svg';
 
-var randomBadgeColor = function() {
-  return ['green', 'yellow', 'red', 'none'][Math.floor(Math.random() * 4)];
-};
 
 var getBadges = function(t){
   return t.card('name')
@@ -165,19 +162,8 @@ var cardButtonCallback = function(t){
 
 // We need to call initialize to get all of our capability handles set up and registered with Trello
 TrelloPowerUp.initialize({
-  // NOTE about asynchronous responses
-  // If you need to make an asynchronous request or action before you can reply to Trello
-  // you can return a Promise (bluebird promises are included at TrelloPowerUp.Promise)
-  // The Promise should resolve to the object type that is expected to be returned
   'card-badges': function(t, options){
     return getBadges(t);
-  },
-  'card-buttons': function(t, options) {
-    return [{
-      icon: GRAY_ICON,
-      text: 'Open Popup',
-      callback: cardButtonCallback
-    }];
   },
   'card-detail-badges': function(t, options) {
     return getBadges(t);
